@@ -6,7 +6,12 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-app = Flask(__name__, template_folder="../templates")
+# Correct paths for templates and static folders
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+TEMPLATES_DIR = os.path.join(BASE_DIR, "templates")
+STATIC_DIR = os.path.join(BASE_DIR, "static")
+
+app = Flask(__name__, template_folder=TEMPLATES_DIR, static_folder=STATIC_DIR)
 
 # Flask-Mail config
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
@@ -37,8 +42,6 @@ def index():
         return redirect(url_for('index'))
     return render_template('index.html')
 
-# Vercel serverless handler
-def handler(request, context):
-    from werkzeug.middleware.proxy_fix import ProxyFix
-    app.wsgi_app = ProxyFix(app.wsgi_app)
-    return app
+# For Vercel serverless deployment, export the app object
+# Vercel automatically detects `app` in Python serverless functions
+app
